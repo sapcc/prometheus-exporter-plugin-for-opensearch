@@ -26,11 +26,6 @@ jobs:
         run: |
           ./gradlew clean build
 
-      - name: Debug build output
-        run: |
-          echo "Listing files in build/distributions/"
-          ls -al build/distributions/
-
       # Save the artifact
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
@@ -52,11 +47,6 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build-artifact
-
-      - name: Debug directory
-        run: |
-          echo "Find all zip files"
-          find . -type f -name "*.zip"
 
       # Extract version from gradle.properties
       - uses: guillermocalvo/gradle-properties@v3
@@ -85,6 +75,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: build/distributions/prometheus-exporter-${{ steps.properties.outputs.version }}.zip
+          asset_path: prometheus-exporter-${{ steps.properties.outputs.version }}.zip
           asset_name: prometheus-exporter-${{ steps.properties.outputs.version }}.zip
           asset_content_type: application/zip
