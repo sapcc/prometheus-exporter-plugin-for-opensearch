@@ -10,61 +10,71 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # Checkout Repository
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      # Checkout Repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    # Set up Java (falls benötigt, z.B. für Maven oder Gradle)
-    - name: Set up Java
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
+      # Set up Java
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: '17'
 
-    # Install dependencies and build project
-    - name: Build project
-      run: |
-        ./gradlew clean build
+      # Build the project
+      - name: Build project
+        run: |
+          ./gradlew clean build
 
-    # Speichere die Artefakte für den Release
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: build-artifacts
-        path: build/distributions/*.zip
+      # Save the artifact
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifact
+          path: build/distributions/*.zip
 
   release:
     needs: build
     runs-on: ubuntu-latest
 
     steps:
-    # Checkout Repository
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      # Checkout Repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    # Download die Artefakte aus dem Build-Job
-    - name: Download build artifacts
-      uses: actions/download-artifact@v4
-      with:
-        name: build-artifacts
+      # Download build artifacts
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifact
 
-    # Erstelle einen Release
-    - name: Create GitHub Release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.ref_name }}
-        release_name: Release ${{ github.ref_name }}
-        body: |
-          Auto generated release for ${{ github.ref_name }}
-        draft: false
-        prerelease: false
+      # Extract version from gradle.properties
+      - name: Extract version
+        id: extract_version
+        run: |
+          version=$(grep '^version=' gradle.properties | cut -d '=' -f2 | tr -d '\r')
+          echo "VERSION=$version" >> $GITHUB_ENV
 
-    # Lade die Artefakte in den Release hoch
-    - name: Upload artifacts to Release
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: build/distributions/*.zip 
+      # Create GitHub Release
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
+          body: |
+            Auto generated release for ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+
+      # Upload artifact to Release
+      - name: Upload artifact to Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: build/distributions/prometheus-exporter-${{ env.VERSION }}.zip
+          asset_name: prometheus-exporter-${{ env.VERSION }}.zip
+          asset_content_type: application/zip
