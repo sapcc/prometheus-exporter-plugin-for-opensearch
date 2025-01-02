@@ -1,0 +1,70 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'  # Trigger bei Tags, die mit "v" beginnen
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Checkout Repository
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # Set up Java (falls benötigt, z.B. für Maven oder Gradle)
+    - name: Set up Java
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+
+    # Install dependencies and build project
+    - name: Build project
+      run: |
+        ./gradlew clean build
+
+    # Speichere die Artefakte für den Release
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-artifacts
+        path: build/distributions/*.zip
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+    # Checkout Repository
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # Download die Artefakte aus dem Build-Job
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: build-artifacts
+
+    # Erstelle einen Release
+    - name: Create GitHub Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref_name }}
+        release_name: Release ${{ github.ref_name }}
+        body: |
+          Auto generated release for ${{ github.ref_name }}
+        draft: false
+        prerelease: false
+
+    # Lade die Artefakte in den Release hoch
+    - name: Upload artifacts to Release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: build/distributions/*.zip 
