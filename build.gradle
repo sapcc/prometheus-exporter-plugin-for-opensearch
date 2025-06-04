@@ -39,7 +39,7 @@ buildscript {
         ]
 
         bwcPluginDownloadLink = 'https://github.com/Virtimo/prometheus-exporter-plugin-for-opensearch/releases/download/v' +
-                project.BWCPluginVersion + '/prometheus-exporter-' + project.BWCPluginVersion + '.zip'
+                project.BWCversion + '/prometheus-exporter-' + project.BWCPluginVersion + '.zip'
         baseName = "bwcCluster"
         bwcFilePath = "src/test/resources/org/opensearch/prometheus-exporter/bwc/"
         bwcPrometheusExporterPath = bwcFilePath + "prometheus-exporter/"
