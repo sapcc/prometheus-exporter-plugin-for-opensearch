@@ -7,8 +7,8 @@ The [Prometheus® exporter](https://prometheus.io/docs/instrumenting/writing_exp
 - [Compatibility Matrix](#compatibility-matrix)
 - [Install or Remove Plugin](#install-or-remove-plugin)
 - [Plugin Configuration](#plugin-configuration)
-  - [Static settings](#static-settings) 
-  - [Dynamic settings](#dynamic-settings) 
+  - [Static settings](#static-settings)
+  - [Dynamic settings](#dynamic-settings)
 - [Usage](#usage)
 - [Build from Source](#build-from-source)
 - [Testing](#testing)
@@ -50,6 +50,7 @@ NOTE: OpenSearch plugins much match _exactly_ in major.minor.path version to the
 
 | OpenSearch |      Plugin |  Release date |
 |-----------:|------------:|--------------:|
+|     2.19.2 |    2.19.2.0 |    2025-06-04 |
 |     2.19.0 |    2.19.0.0 |    2025-11-14 |
 |     2.18.0 |    2.18.0.0 |    2025-01-02 |
 |     2.17.1 |    2.17.1.0 |  Oct 02, 2024 |
@@ -294,7 +295,7 @@ It is not part of `./gradlew [build|check]` task(s), but it is included in the C
 
 OpenSearch versions used during BWC tests use determined by properties located in `gradle.properties` file. Specifically `project.version` and `project.BWCversion`. Version of plugin deployed into `project.BWCversion` cluster is specified by `project.BWCPluginVersion` property.
 
-In the beginning of BWC tests the actual version of plugin (`project.version`) is build using `bundlePlugin` gradle task and the `project.BWCPluginVersion` plugin is downloaded from GitHub releases. Both ZIP files are placed into `src/test/resource/org/opensearch/prometheus-exrpoter/bwc/prometheus-exporter` folder (this folder is ignored by git). 
+In the beginning of BWC tests the actual version of plugin (`project.version`) is build using `bundlePlugin` gradle task and the `project.BWCPluginVersion` plugin is downloaded from GitHub releases. Both ZIP files are placed into `src/test/resource/org/opensearch/prometheus-exrpoter/bwc/prometheus-exporter` folder (this folder is ignored by git).
 
 ## License
 
