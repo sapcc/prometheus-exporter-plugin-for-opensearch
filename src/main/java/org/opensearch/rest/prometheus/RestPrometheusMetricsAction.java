@@ -27,7 +27,6 @@ import org.compuscene.metrics.prometheus.PrometheusMetricsCollector;
 import org.compuscene.metrics.prometheus.PrometheusSettings;
 import org.opensearch.action.NodePrometheusMetricsRequest;
 import org.opensearch.action.NodePrometheusMetricsResponse;
-import org.opensearch.client.Client;
 import org.opensearch.common.network.NetworkAddress;
 import org.opensearch.common.settings.ClusterSettings;
 import org.opensearch.common.settings.Setting;
@@ -94,7 +93,7 @@ public class RestPrometheusMetricsAction extends BaseRestHandler {
      // This method does not throw any IOException because there are no request parameters to be parsed
      // and processed. This may change in the future.
     @Override
-    protected RestChannelConsumer prepareRequest(RestRequest request, Client client) {
+    protected RestChannelConsumer prepareRequest(RestRequest request) {
         if (logger.isTraceEnabled()) {
             String remoteAddress = NetworkAddress.format(request.getHttpChannel().getRemoteAddress());
             logger.trace(String.format(Locale.ENGLISH, "Received request for Prometheus metrics from %s",
@@ -102,53 +101,6 @@ public class RestPrometheusMetricsAction extends BaseRestHandler {
         }
 
         NodePrometheusMetricsRequest metricsRequest = new NodePrometheusMetricsRequest();
-
-        return channel -> client.execute(INSTANCE, metricsRequest,
-                new RestResponseListener<NodePrometheusMetricsResponse>(channel) {
-
-                    @Override
-                    public RestResponse buildResponse(NodePrometheusMetricsResponse response) throws Exception {
-
-                        String clusterName = response.getLocalNodesInfoResponse().getClusterName().value();
-                        assert response.getLocalNodesInfoResponse().getNodes().size() == 1;
-                        String nodeName = response.getLocalNodesInfoResponse().getNodes().get(0).getNode().getName();
-                        String nodeId = response.getLocalNodesInfoResponse().getNodes().get(0).getNode().getId();
-
-                        if (logger.isTraceEnabled()) {
-                            logger.trace("Preparing metrics output on node: [{}], [{}]", nodeName, nodeId);
-                        }
-                        PrometheusMetricsCollector collector;
-                        String textContent;
-                        try {
-//                            PrometheusMetricsCatalog catalog = new PrometheusMetricsCatalog(clusterName, nodeName, nodeId, metricPrefix);
-                            PrometheusMetricsCatalog catalog = new PrometheusMetricsCatalog(clusterName, metricPrefix);
-                            collector = new PrometheusMetricsCollector(
-                                    catalog,
-                                    prometheusSettings.getPrometheusIndices(),
-                                    prometheusSettings.getPrometheusClusterSettings()
-                            );
-                            collector.registerMetrics();
-                            collector.updateMetrics(
-                                    nodeName, nodeId, response.getClusterHealth(), response.getNodeStats(),
-                                    response.getIndicesStats(), response.getClusterStatsData());
-                            textContent = collector.getTextContent();
-                        } catch (Exception ex) {
-                            // We use try-catch block to catch exception from Prometheus catalog and collector processing
-                            // and dump it into the log, otherwise client needs to know how to configure logging to output
-                            // exceptions that are thrown from
-                            // "RestResponseListener.buildResponse(Response response) throws Exception".
-                            // This is useful when metric_prefix value is not valid or when metric collector fails
-                            // generating text content. We may be able to get rid of this try-catch pattern
-                            // once we implement robust verification of custom metric prefix.
-                            // See https://github.com/aiven/prometheus-exporter-plugin-for-opensearch/issues/11
-                            logger.debug("Prometheus metric catalog processing failed", ex);
-                            throw ex;
-                        }
-                        // Prometheus' metrics are exposed similarly the Pushgateway example except no real gateway
-                        // is used and the metrics are exposed directly via OpenSearch HTTP API instead.
-                        // See https://github.com/prometheus/client_java#exporting-to-a-pushgateway
-                        return new BytesRestResponse(RestStatus.OK, textContent);
-                    }
-                });
+        return channel -> channel.dispatchRequest(metricsRequest);
     }
 }
