@@ -27,7 +27,7 @@ import org.compuscene.metrics.prometheus.PrometheusMetricsCollector;
 import org.compuscene.metrics.prometheus.PrometheusSettings;
 import org.opensearch.action.NodePrometheusMetricsRequest;
 import org.opensearch.action.NodePrometheusMetricsResponse;
-import org.opensearch.client.node.NodeClient;
+import org.opensearch.client.Client;
 import org.opensearch.common.network.NetworkAddress;
 import org.opensearch.common.settings.ClusterSettings;
 import org.opensearch.common.settings.Setting;
@@ -94,7 +94,7 @@ public class RestPrometheusMetricsAction extends BaseRestHandler {
      // This method does not throw any IOException because there are no request parameters to be parsed
      // and processed. This may change in the future.
     @Override
-    protected RestChannelConsumer prepareRequest(RestRequest request, NodeClient client) {
+    protected RestChannelConsumer prepareRequest(RestRequest request, Client client) {
         if (logger.isTraceEnabled()) {
             String remoteAddress = NetworkAddress.format(request.getHttpChannel().getRemoteAddress());
             logger.trace(String.format(Locale.ENGLISH, "Received request for Prometheus metrics from %s",
