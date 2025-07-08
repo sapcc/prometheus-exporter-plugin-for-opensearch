@@ -34,8 +34,6 @@ import org.opensearch.action.admin.indices.stats.IndicesStatsRequest;
 import org.opensearch.action.admin.indices.stats.IndicesStatsResponse;
 import org.opensearch.action.support.ActionFilters;
 import org.opensearch.action.support.HandledTransportAction;
-import org.opensearch.client.Client;
-import org.opensearch.client.Requests;
 import org.opensearch.common.Nullable;
 import org.opensearch.common.inject.Inject;
 import org.opensearch.common.settings.ClusterSettings;
@@ -53,7 +51,7 @@ import org.opensearch.transport.TransportService;
  */
 public class TransportNodePrometheusMetricsAction extends HandledTransportAction<NodePrometheusMetricsRequest,
         NodePrometheusMetricsResponse> {
-    private final Client client;
+    private final org.opensearch.client.internal.Client client;
     private final Settings settings;
     private final ClusterSettings clusterSettings;
     private final PrometheusSettings prometheusSettings;
@@ -68,7 +66,7 @@ public class TransportNodePrometheusMetricsAction extends HandledTransportAction
      * @param clusterSettings Cluster settings
      */
     @Inject
-    public TransportNodePrometheusMetricsAction(Settings settings, Client client,
+    public TransportNodePrometheusMetricsAction(Settings settings, org.opensearch.client.internal.Client client,
                                                 TransportService transportService, ActionFilters actionFilters,
                                                 ClusterSettings clusterSettings) {
         super(NodePrometheusMetricsAction.NAME, transportService, actionFilters,
@@ -119,17 +117,12 @@ public class TransportNodePrometheusMetricsAction extends HandledTransportAction
         private AsyncAction(ActionListener<NodePrometheusMetricsResponse> listener) {
             this.listener = listener;
 
-            // Note: when using ClusterHealthRequest in Java, it pulls data at the shards level, according to ES source
-            // code comment this is "so it is backward compatible with the transport client behaviour".
-            // hence we are explicit about ClusterHealthRequest level and do not rely on defaults.
-            // https://www.elastic.co/guide/en/elasticsearch/reference/6.4/cluster-health.html#request-params
-            this.healthRequest = Requests.clusterHealthRequest().local(true);
+            this.healthRequest = new ClusterHealthRequest().local(true);
             this.healthRequest.level(ClusterHealthRequest.Level.SHARDS);
 
-            // We want to get only the most minimal static info from local node (cluster name, node name and nodeID).
-            this.localNodesInfoRequest = Requests.nodesInfoRequest("_local").clear();
+            this.localNodesInfoRequest = new NodesInfoRequest("_local").clear();
 
-            this.nodesStatsRequest = Requests.nodesStatsRequest(prometheusNodesFilter).clear().all();
+            this.nodesStatsRequest = new NodesStatsRequest(prometheusNodesFilter).clear().all();
 
             // Indices stats request is not "node-specific", it does not support any "_local" notion
             // it is broad-casted to all cluster nodes.
@@ -144,8 +137,7 @@ public class TransportNodePrometheusMetricsAction extends HandledTransportAction
 
             // Cluster settings are get via ClusterStateRequest (see elasticsearch RestClusterGetSettingsAction for details)
             // We prefer to send it to master node (hence local=false; it should be set by default but we want to be sure).
-            this.clusterStateRequest = isPrometheusClusterSettings ? Requests.clusterStateRequest()
-                    .clear().metadata(true).local(false) : null;
+            this.clusterStateRequest = isPrometheusClusterSettings ? new ClusterStateRequest().clear().metadata(true).local(false) : null;
         }
 
         private void gatherRequests() {
