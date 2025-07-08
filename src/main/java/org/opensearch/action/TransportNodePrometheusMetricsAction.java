@@ -41,6 +41,7 @@ import org.opensearch.common.settings.Settings;
 import org.opensearch.core.action.ActionListener;
 import org.opensearch.tasks.Task;
 import org.opensearch.transport.TransportService;
+import org.opensearch.client.node.NodeClient;
 
 /**
  * Transport action class for Prometheus Exporter plugin.
@@ -55,19 +56,22 @@ public class TransportNodePrometheusMetricsAction extends HandledTransportAction
     private final ClusterSettings clusterSettings;
     private final PrometheusSettings prometheusSettings;
     private final Logger logger = LogManager.getLogger(getClass());
+    private final NodeClient client;
 
     /**
      * A constructor.
      * @param settings Settings
+     * @param client Node client
      * @param transportService Transport service
      * @param actionFilters Action filters
      * @param clusterSettings Cluster settings
      */
     @Inject
-    public TransportNodePrometheusMetricsAction(Settings settings, TransportService transportService,
+    public TransportNodePrometheusMetricsAction(Settings settings, NodeClient client, TransportService transportService,
                                                 ActionFilters actionFilters, ClusterSettings clusterSettings) {
         super(NodePrometheusMetricsAction.NAME, transportService, actionFilters,
                 NodePrometheusMetricsRequest::new);
+        this.client = client;
         this.settings = settings;
         this.clusterSettings = clusterSettings;
         this.prometheusSettings = new PrometheusSettings(settings, clusterSettings);
