@@ -34,6 +34,7 @@ import org.opensearch.common.settings.Settings;
 import org.opensearch.core.rest.RestStatus;
 import org.opensearch.rest.*;
 import org.opensearch.rest.action.RestResponseListener;
+import org.opensearch.client.node.NodeClient;
 
 import java.util.List;
 import java.util.Locale;
@@ -90,10 +91,8 @@ public class RestPrometheusMetricsAction extends BaseRestHandler {
         return "prometheus_metrics_action";
     }
 
-     // This method does not throw any IOException because there are no request parameters to be parsed
-     // and processed. This may change in the future.
     @Override
-    protected RestChannelConsumer prepareRequest(RestRequest request) {
+    protected RestChannelConsumer prepareRequest(RestRequest request, NodeClient client) {
         if (logger.isTraceEnabled()) {
             String remoteAddress = NetworkAddress.format(request.getHttpChannel().getRemoteAddress());
             logger.trace(String.format(Locale.ENGLISH, "Received request for Prometheus metrics from %s",
@@ -101,6 +100,41 @@ public class RestPrometheusMetricsAction extends BaseRestHandler {
         }
 
         NodePrometheusMetricsRequest metricsRequest = new NodePrometheusMetricsRequest();
-        return channel -> channel.dispatchRequest(metricsRequest);
+
+        return channel -> client.execute(INSTANCE, metricsRequest,
+                new RestResponseListener<NodePrometheusMetricsResponse>(channel) {
+
+                    @Override
+                    public RestResponse buildResponse(NodePrometheusMetricsResponse response) throws Exception {
+
+                        String clusterName = response.getLocalNodesInfoResponse().getClusterName().value();
+                        assert response.getLocalNodesInfoResponse().getNodes().size() == 1;
+                        String nodeName = response.getLocalNodesInfoResponse().getNodes().get(0).getNode().getName();
+                        String nodeId = response.getLocalNodesInfoResponse().getNodes().get(0).getNode().getId();
+
+                        if (logger.isTraceEnabled()) {
+                            logger.trace("Preparing metrics output on node: [{}], [{}]", nodeName, nodeId);
+                        }
+                        PrometheusMetricsCollector collector;
+                        String textContent;
+                        try {
+                            PrometheusMetricsCatalog catalog = new PrometheusMetricsCatalog(clusterName, metricPrefix);
+                            collector = new PrometheusMetricsCollector(
+                                    catalog,
+                                    prometheusSettings.getPrometheusIndices(),
+                                    prometheusSettings.getPrometheusClusterSettings()
+                            );
+                            collector.registerMetrics();
+                            collector.updateMetrics(
+                                    nodeName, nodeId, response.getClusterHealth(), response.getNodeStats(),
+                                    response.getIndicesStats(), response.getClusterStatsData());
+                            textContent = collector.getTextContent();
+                        } catch (Exception ex) {
+                            logger.debug("Prometheus metric catalog processing failed", ex);
+                            throw ex;
+                        }
+                        return new BytesRestResponse(RestStatus.OK, textContent);
+                    }
+                });
     }
 }
