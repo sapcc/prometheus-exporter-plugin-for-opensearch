@@ -51,7 +51,6 @@ import org.opensearch.transport.TransportService;
  */
 public class TransportNodePrometheusMetricsAction extends HandledTransportAction<NodePrometheusMetricsRequest,
         NodePrometheusMetricsResponse> {
-    private final org.opensearch.client.internal.Client client;
     private final Settings settings;
     private final ClusterSettings clusterSettings;
     private final PrometheusSettings prometheusSettings;
@@ -60,18 +59,15 @@ public class TransportNodePrometheusMetricsAction extends HandledTransportAction
     /**
      * A constructor.
      * @param settings Settings
-     * @param client Cluster client
      * @param transportService Transport service
      * @param actionFilters Action filters
      * @param clusterSettings Cluster settings
      */
     @Inject
-    public TransportNodePrometheusMetricsAction(Settings settings, org.opensearch.client.internal.Client client,
-                                                TransportService transportService, ActionFilters actionFilters,
-                                                ClusterSettings clusterSettings) {
+    public TransportNodePrometheusMetricsAction(Settings settings, TransportService transportService,
+                                                ActionFilters actionFilters, ClusterSettings clusterSettings) {
         super(NodePrometheusMetricsAction.NAME, transportService, actionFilters,
                 NodePrometheusMetricsRequest::new);
-        this.client = client;
         this.settings = settings;
         this.clusterSettings = clusterSettings;
         this.prometheusSettings = new PrometheusSettings(settings, clusterSettings);
