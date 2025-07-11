@@ -24,8 +24,8 @@ import org.opensearch.client.Request;
 import org.opensearch.client.Response;
 import org.opensearch.client.RestClient;
 import org.opensearch.plugins.Plugin;
-import org.opensearch.test.OpenSearchTestCase;
 import org.opensearch.test.OpenSearchIntegTestCase;
+import org.opensearch.javaagent.bootstrap.AgentPolicy$AnyCanExit;
 
 import java.io.IOException;
 import java.util.Arrays;
