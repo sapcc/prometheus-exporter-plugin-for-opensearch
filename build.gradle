@@ -132,7 +132,6 @@ task integTest(type: RestIntegTestTask) {
     classpath = sourceSets.test.runtimeClasspath
     filter {
         excludeTestsMatching "org.opensearch.plugin.bwc.*IT"
-        excludeTestsMatching "org.opensearch.test.OpenSearchTestCase"
     }
 }
 tasks.named("check").configure { dependsOn(integTest) }
@@ -148,12 +147,12 @@ testClusters.all {
     // setting 'cluster.name', 'PrometheusExporterITCluster'
 }
 
-integTest {
+//integTest {
     // The --debug-jvm command-line option makes the cluster debuggable; this makes the tests debuggable
-    if (System.getProperty("test.debug") != null) {
-        jvmArgs '-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005'
-    }
-}
+//    if (System.getProperty("test.debug") != null) {
+//        jvmArgs '-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005'
+//    }
+//}
 
 testClusters.integTest {
     testDistribution = "INTEG_TEST"
