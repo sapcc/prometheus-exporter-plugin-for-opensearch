@@ -132,6 +132,7 @@ task integTest(type: RestIntegTestTask) {
     classpath = sourceSets.test.runtimeClasspath
     filter {
         excludeTestsMatching "org.opensearch.plugin.bwc.*IT"
+        excludeTestsMatching "org.opensearch.test.OpenSearchTestCase"
     }
 }
 tasks.named("check").configure { dependsOn(integTest) }
