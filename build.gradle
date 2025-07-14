@@ -78,6 +78,11 @@ def pluginDescription = pluginDescription
 //def pathToPlugin = 'path.to.plugin'
 def pluginClassName = pluginClassname
 
+java {
+    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_21
+}
+
 opensearchplugin {
     name pluginName
     description pluginDescription
