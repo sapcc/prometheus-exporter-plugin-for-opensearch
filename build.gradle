@@ -69,7 +69,7 @@ apply plugin: 'opensearch.repositories'
 apply plugin: 'opensearch.opensearchplugin'
 apply plugin: 'opensearch.testclusters'
 apply plugin: 'opensearch.yaml-rest-test'
-//apply plugin: 'opensearch.java-agent'
+apply plugin: 'opensearch.java-agent'
 //apply plugin: 'checkstyle'
 
 def pluginName = pluginName
