@@ -69,13 +69,8 @@ apply plugin: 'opensearch.repositories'
 apply plugin: 'opensearch.opensearchplugin'
 apply plugin: 'opensearch.testclusters'
 apply plugin: 'opensearch.yaml-rest-test'
-apply plugin: 'opensearch.java-agent'
+//apply plugin: 'opensearch.java-agent'
 //apply plugin: 'checkstyle'
-
-java {
-    targetCompatibility = JavaVersion.VERSION_21
-    sourceCompatibility = JavaVersion.VERSION_21
-}
 
 def pluginName = pluginName
 def pluginDescription = pluginDescription
