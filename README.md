@@ -50,6 +50,7 @@ NOTE: OpenSearch plugins much match _exactly_ in major.minor.path version to the
 
 | OpenSearch |      Plugin |  Release date |
 |-----------:|------------:|--------------:|
+|     3.1.0  |     3.1.0.0 |    2025-07-11 |
 |     3.0.0  |     3.0.0.0 |    2025-07-11 |
 |     2.19.2 |    2.19.2.0 |    2025-06-04 |
 |     2.19.0 |    2.19.0.0 |    2025-11-14 |
