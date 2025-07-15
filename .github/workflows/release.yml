@@ -57,7 +57,7 @@ jobs:
       - name: show after download
         shell: bash
         run: |
-          la -la /home/runner/work/prometheus-exporter-plugin-for-opensearch/prometheus-exporter-plugin-for-opensearch
+          ls -la /home/runner/work/prometheus-exporter-plugin-for-opensearch/prometheus-exporter-plugin-for-opensearch
           find /home/runner/work/prometheus-exporter-plugin-for-opensearch/ -type f
 
       # Extract version from gradle.properties
