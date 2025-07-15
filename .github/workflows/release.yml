@@ -37,7 +37,6 @@ jobs:
         shell: bash
         run: |
           ls -la build/distributions/*
-          find ./build -type f
 
   release:
     needs: build
@@ -58,8 +57,6 @@ jobs:
         shell: bash
         run: |
           ls -la /home/runner/work/prometheus-exporter-plugin-for-opensearch/prometheus-exporter-plugin-for-opensearch
-          find /home/runner/work/prometheus-exporter-plugin-for-opensearch/ -type f
-          export version=$(find . -type f|grep "prometheus-exporter*"|grep zip|awk -F/ '{ print $NF }')
 
       # Extract version from gradle.properties
       #- uses: guillermocalvo/gradle-properties@v3
@@ -88,6 +85,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: build/distributions/prometheus-exporter-${{ env.version }}.zip
-          asset_name: prometheus-exporter-${{ env.version }}.zip
+          asset_path: build/distributions/prometheus-exporter-*.zip
+          asset_name: prometheus-exporter-*.zip
           asset_content_type: application/zip
