@@ -256,4 +256,3 @@
   - match: {error.type: "settings_exception"}
   - match: {error.reason: "Failed to load settings from [{\"prometheus.indices_filter.selected_indices\":[\"\",null,10]}]"}
   - match: {error.caused_by.type: "illegal_state_exception"}
-  - match: {error.caused_by.stack_trace: "java.lang.IllegalStateException: only value lists are allowed in serialized settings"}
