@@ -59,10 +59,10 @@ jobs:
           OPENSEARCH_VERSION=$(grep '^opensearch_version' gradle.properties | awk -F= '{gsub(/ /,"",$2); print $2}')
           echo "version=$OPENSEARCH_VERSION" >> $GITHUB_OUTPUT
 
-      - name: show version
+      - name: Show version
         shell: bash
         run: |
-          echo $VERSION
+          echo "OpenSearch version: ${{ steps.properties.outputs.version }}"
 
       - name: Create GitHub Release
         id: create_release
