@@ -72,6 +72,12 @@ jobs:
         shell: bash
         run: |
           cat gradle.properties
+      
+
+      - name: Set version from gradle.properties
+        id: properties
+        run: |  
+          opensearch_version=$(grep '^opensearch_version' gradle.properties | awk -F= '{gsub(/ /,"",$2); print $2}')
           
 
       # Create GitHub Release
