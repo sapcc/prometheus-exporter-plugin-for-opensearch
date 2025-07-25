@@ -51,7 +51,7 @@ jobs:
       - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
-          name: build-artifact]
+          name: build-artifact
 
       - name: Set version from gradle.properties
         id: properties
