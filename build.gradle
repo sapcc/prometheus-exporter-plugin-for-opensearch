@@ -38,7 +38,7 @@ buildscript {
                 "prometheus": "0.16.0"
         ]
 
-        bwcPluginDownloadLink = 'https://github.com/Virtimo/prometheus-exporter-plugin-for-opensearch/releases/download/v' +
+        bwcPluginDownloadLink = 'https://github.com/sapcc/prometheus-exporter-plugin-for-opensearch/releases/download/v' +
                 project.BWCversion + '/prometheus-exporter-' + project.BWCPluginVersion + '.zip'
         baseName = "bwcCluster"
         bwcFilePath = "src/test/resources/org/opensearch/prometheus-exporter/bwc/"
@@ -65,8 +65,11 @@ buildscript {
 
 apply plugin: 'java'
 apply plugin: 'idea'
+apply plugin: 'opensearch.repositories'
 apply plugin: 'opensearch.opensearchplugin'
+apply plugin: 'opensearch.testclusters'
 apply plugin: 'opensearch.yaml-rest-test'
+apply plugin: 'opensearch.java-agent'
 //apply plugin: 'checkstyle'
 
 def pluginName = pluginName
@@ -74,6 +77,11 @@ def pluginDescription = pluginDescription
 //def projectPath = 'org.opensearch'
 //def pathToPlugin = 'path.to.plugin'
 def pluginClassName = pluginClassname
+
+java {
+    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_21
+}
 
 opensearchplugin {
     name pluginName

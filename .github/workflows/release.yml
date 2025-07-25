@@ -19,7 +19,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: "temurin"
-          java-version: '17'
+          java-version: '21'
 
       # Build the project
       - name: Build project
@@ -31,7 +31,12 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build-artifact
-          path: build/distributions/*.zip
+          path: build/distributions/prometheus-exporter-*.zip
+
+      - name: show created artifact
+        shell: bash
+        run: |
+          ls -la build/distributions/*
 
   release:
     needs: build
@@ -48,11 +53,16 @@ jobs:
         with:
           name: build-artifact
 
-      # Extract version from gradle.properties
-      - uses: guillermocalvo/gradle-properties@v3
+      - name: show after download
+        shell: bash
+        run: |
+          ls -la /home/runner/work/prometheus-exporter-plugin-for-opensearch/prometheus-exporter-plugin-for-opensearch
+
+      - name: Set version from gradle.properties
         id: properties
-        with:
-          output_file: ${{ github.output }}
+        run: |  
+          version=$(grep '^version' gradle.properties | awk -F= '{gsub(/ /,"",$2); print $2}')
+          echo "version=$version" >> "$GITHUB_OUTPUT"
 
       # Create GitHub Release
       - name: Create GitHub Release
